@@ -21,12 +21,39 @@ def InsertPIN(PIN):
     response = requests.post(url, data=datas, headers=headers)
     return response
 
-def Balance():
+def GetBalnaceAccount(Account):
+    # get balance
+    data = { 'Account' : Account }
+    url = "check url"
+    headers = {'Content-Type' : 'application/json; charset=utf-8'}
     
+    response = requests.post(url, data=datas, headers=headers)
+    return response
+
+def Balance(balance):
+    return Alert("your balance is ", balance)
   
-def Deposit():
+def Deposit(Balance, IN):
+    Balance = Balance + IN
     
-def Withdrawal():
+    # save balance
+    data = { 'Balance' : Balance }
+    url = "check url"
+    headers = {'Content-Type' : 'application/json; charset=utf-8'}
+    
+    response = requests.post(url, data=datas, headers=headers)
+    return Alert("your balance is ", balance)
+
+def Withdrawal(Balance, Out):
+    Balance = Balance + Out
+    
+    # save balance
+    data = { 'Balance' : Balance }
+    url = "check url"
+    headers = {'Content-Type' : 'application/json; charset=utf-8'}
+    
+    response = requests.post(url, data=datas, headers=headers)
+    return Alert("your balance is ", balance)
 
 
 def main(_CardNumber, order):
@@ -37,12 +64,18 @@ def main(_CardNumber, order):
         check_PIN = await InsertPIN(PIN)
         
         if check_PIN == "OK":
+            Account = input()
+            # class
+            Information = await GetBalnaceAccount(Account)
+            
             if order == "Balance":
-                
+                Balance(Information.Balance)
             if order == "Deposit":
-                
+                IN = input()
+                Deposit(Information.Balance, IN)
             if order == "Withdrawal":
-                
+                Out = input()
+                Withdrawal(Information.Balance, Out)
         else:
             Alert("Error : PIN is invalid") # Alert
     else:
