@@ -2,8 +2,16 @@
 import os
 import requests
 
+
+# Alert
+def Alert(text):
+    print("====================================")
+    print("===============Alert================")
+    print("====================================")
+    print("=>", text)
+
+# check card valid
 def checkCard(number, order):
-    # check card valid
     data = { 'number' : number }
     url = "check url"
     headers = {'Content-Type' : 'application/json; charset=utf-8'}
