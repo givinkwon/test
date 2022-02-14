@@ -41,9 +41,9 @@ Please upload the code for this project to GitHub or anywhere, and post a link t
 
 
 
-< Code Description > 
-1. To start an ATM controller, run main.py.
-2. The main function defines the following functions. Some functions are abstracted.
+### < Code Description > 
+## 1. To start an ATM controller, run main.py.
+## 2. The main function defines the following functions. Some functions are abstracted.
 - Alert: Guide the user to a message.
 - CheckCard : Validate the card based on CardNumber and PIN information.
 - ObjectCard: Method of sending out a card in case of an error.
@@ -53,6 +53,6 @@ Please upload the code for this project to GitHub or anywhere, and post a link t
 - Deposit: Process the deposit as much as the amount entered and guide the message.
 - Withdrawal: Process withdrawal by the amount entered and guide the message.
 
-3. Card and Account Class were defined for use in the main function. These are Card.py and Account, respectively.It's defined in py.
+## 3. Card and Account Class were defined for use in the main function. These are Card.py and Account, respectively.It's defined in py.
 
-4. We conducted a simple test using the unittest library. Some tests are abstracted.
+## 4. We conducted a simple test using the unittest library. Some tests are abstracted.
