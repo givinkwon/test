@@ -1,7 +1,13 @@
-
-import os
 import requests
+import sys
+import os
 
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
+import Account
+import Card
+
+Root = "api.bearRobotics.com/ATM"  # API Root url
 
 # Alert
 def Alert(text):
@@ -10,86 +16,133 @@ def Alert(text):
     print("====================================")
     print("=>", text)
 
-# check card valid
-def checkCard(number, order):
-    data = { 'number' : number }
-    url = "check url"
+# check card valid => return Verification PIN_Number
+def CheckCard(cardNumber, PIN):
+    datas = { 'cardNumber' : cardNumber, 'PIN' : PIN }
+    url = Root + "/CheckCard"
     headers = {'Content-Type' : 'application/json; charset=utf-8'}
     
     response = requests.post(url, data=datas, headers=headers)
-    return response
-    
+    return response.status_code
 
-def InsertPIN(PIN):
-    # check PIN
-    data = { 'pin' : PIN }
-    url = "check url"
-    headers = {'Content-Type' : 'application/json; charset=utf-8'}
-    
-    response = requests.post(url, data=datas, headers=headers)
-    return response
+def EjectCard():
+    # card eject
+    return True
 
-def GetBalnaceAccount(Account):
+def EjectMoney():
+    # card eject
+    return True
+
+def GetBalnaceAccount(cardNumber, PIN):
     # get balance
-    data = { 'Account' : Account }
-    url = "check url"
+    datas = { 'cardNumber' : cardNumber, 'PIN' : PIN }
+    url = Root + "/GetBalnaceAccount"
     headers = {'Content-Type' : 'application/json; charset=utf-8'}
     
     response = requests.post(url, data=datas, headers=headers)
     return response
 
-def Balance(balance):
-    return Alert("your balance is ", balance)
+def Balance(_Account):
+    return Alert("your balance is ", _Account.Balance)
   
-def Deposit(Balance, IN):
-    Balance = Balance + IN
+def Deposit(_Account, IN, Money):
+
+    Balance = _Account.Balance + IN
     
     # save balance
-    data = { 'Balance' : Balance }
-    url = "check url"
+    datas = { 'Balance' : Balance }
+    url = Root + "/Deposit"
     headers = {'Content-Type' : 'application/json; charset=utf-8'}
     
     response = requests.post(url, data=datas, headers=headers)
-    return Alert("your balance is ", balance)
+    return response
 
 def Withdrawal(Balance, Out):
     Balance = Balance + Out
     
     # save balance
-    data = { 'Balance' : Balance }
-    url = "check url"
+    datas = { 'Balance' : Balance }
+    url = Root + "/Withdrawal"
     headers = {'Content-Type' : 'application/json; charset=utf-8'}
     
     response = requests.post(url, data=datas, headers=headers)
-    return Alert("your balance is ", balance)
+    return response
+
+def main(_Account, _Card):
+
+    while True:
+
+        Alert("Please Enter your Card. If you want to exit the program, Press 0")
+        CardNumber, PIN = input() # contains PIN Number
+
+        # if user press 0 => exit
+        if CardNumber == 0:
+            exit()
+
+        _Card.set([CardNumber, PIN]) # set
+
+        result = await CheckCard(_Card.Number, _Card.PIN) # check card validation
 
 
-def main(_CardNumber, order):
-    result = await checkCard(_CardNumber)
-    
-    if result == "OK":
-        PIN = input()
-        check_PIN = await InsertPIN(PIN)
-        
-        if check_PIN == "OK":
-            Account = input()
+        if result == "Sucess":
+            Alert("Press 1 to balance check or 2 to deposit money or 3 to withdrawal money")
+            order = input()  # Balance // Deposit // Withdrawal
+
             # class
-            Information = await GetBalnaceAccount(Account)
-            
-            if order == "Balance":
-                Balance(Information.Balance)
-            if order == "Deposit":
+            balance_information = await GetBalnaceAccount(_Card.Number, _Card.PIN)
+            _Account.set(balance_information)
+
+            if order == 1:
+                Balance(_Account)
+
+            if order == 2:
+                Alert("Choose the amount to deposit")
                 IN = input()
-                Deposit(Information.Balance, IN)
-            if order == "Withdrawal":
+
+                Alert("Please Enter money")
+                Money = input()
+
+                if IN != Money:
+                    Alert("The deposit amount is different. Please try again")
+                    EjectMoney() # Money Eject
+                    EjectCard() # Card Eject
+
+                if IN == Money:
+                    Deposit_result = Deposit(_Account, IN, Money)
+
+                    if Deposit_result.status_code == "Fail":
+                        Alert("Error : The deposit operation did not proceed. Please try again")
+
+                    if Deposit_result.status_code == "Sucess":
+                        Alert(IN + "$ has been deposited into your account. The remaining balance is" + Deposit_result.Balance)
+
+            if order == 3:
+                Alert("Choose the amount to withdrawal")
                 Out = input()
-                Withdrawal(Information.Balance, Out)
+
+                if Out > _Account.Balance:
+                    Alert("The withdrawal amount is greater than your balance. Please try again")
+                    EjectMoney() # Money Eject
+                    EjectCard() # Card Eject
+
+                else:
+                    Withdrawal_result = Withdrawal(_Account, Out)
+
+                    if Withdrawal_result.status_code == "Fail":
+                        Alert("Error : The withdrawal operation did not proceed. Please try again")
+
+                    if Withdrawal_result.status_code == "Sucess":
+                        Alert(Out + "$ has been withdrawn from your account. The remaining balance is" + Withdrawal_result.Balance)
+
         else:
-            Alert("Error : PIN is invalid") # Alert
-    else:
-        Alert("Error : Card is invalid") # Alert
+            Alert("Error : Card is invalid") # Alert
 
 if __name__ == "__main__":
-    cardNumber = input() # contains PIN Number
-    order = input() # Balance // Deposit // Withdrawal
-    main(cardNumber, order)
+
+
+    _Account = Account() # account information
+    _Card = Card() # Card information
+
+    main(_Account, _Card)
+
+    os.execl(sys.executable, sys.executable, *sys.argv) # loop
