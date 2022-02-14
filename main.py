@@ -33,7 +33,7 @@ def EjectMoney():
     # card eject
     return True
 
-def GetBalnaceAccount(cardNumber, PIN):
+def GetAccount(cardNumber, PIN):
     # get balance
     datas = { 'cardNumber' : cardNumber, 'PIN' : PIN }
     url = Root + "/GetBalnaceAccount"
@@ -43,9 +43,10 @@ def GetBalnaceAccount(cardNumber, PIN):
     return response
 
 def Balance(_Account):
-    return Alert("your balance is ", _Account.Balance)
+    Alert("your balance is ", _Account.Balance)
+    return _Account.Balance
   
-def Deposit(_Account, IN, Money):
+def Deposit(_Account, IN):
 
     Balance = _Account.Balance + IN
     
@@ -89,7 +90,7 @@ def main(_Account, _Card):
             order = input()  # Balance // Deposit // Withdrawal
 
             # class
-            balance_information = await GetBalnaceAccount(_Card.Number, _Card.PIN)
+            balance_information = await GetAccount(_Card.Number, _Card.PIN)
             _Account.set(balance_information)
 
             if order == 1:
